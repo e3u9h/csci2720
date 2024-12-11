@@ -35,8 +35,8 @@ We also use the **Google Maps API** in this project.
   PORT=YOUR_BACKEND_PORT
   MONGODB_URI=YOUR_MONGODB_URI
   JWT_SECRET=YOUR_JWT_SECRET
-    GOOGLE_MAPS_API_KEY=YOUR_API_KEY
-    RANDOM_SEED=ARBITRARY_RANDOM_SEED
+  GOOGLE_MAPS_API_KEY=YOUR_API_KEY
+  RANDOM_SEED=ARBITRARY_RANDOM_SEED
     ```
    - Note: The RANDOM_SEED is used for randomly selecting 10 locations from the location list.
 ### Running the Frontend
