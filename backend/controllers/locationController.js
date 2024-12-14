@@ -1,4 +1,5 @@
 const Location = require('../models/Location');
+const User = require('../models/User');
 const Event = require('../models/Event');
 const seedrandom = require('seedrandom');
 const dotenv = require('dotenv');
@@ -37,6 +38,7 @@ function shuffleArray(array, seed) {
 }
 
 exports.getTenRandomLocations = async (req, res) => {
+
     console.log('getTenRandomLocations');
     try {
         const locations = await Location.find({
@@ -97,3 +99,34 @@ exports.createLocation = async (req, res) => {
 };
 
 // Additional CRUD operations (update, delete, etc.)
+
+// In locationController.js
+
+// Search locations by keyword
+exports.searchLocations = async (req, res) => {
+    try {
+        const { keyword } = req.query;
+        
+        if (!keyword) {
+            return res.status(400).json({ message: 'Search keyword is required' });
+        }
+
+        // Create a case-insensitive search regex
+        const searchRegex = new RegExp(keyword, 'i');
+
+        // Search in multiple fields
+        const locations = await Location.find({
+            $or: [
+                { name: searchRegex },
+                { address: searchRegex },
+                { description: searchRegex }
+            ]
+        });
+
+        res.json(locations);
+    } catch (error) {
+        console.error('Error searching locations:', error);
+        res.status(500).json({ message: 'Error searching locations' });
+    }
+};
+

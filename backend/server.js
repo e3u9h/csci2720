@@ -26,6 +26,8 @@ app.use(cors(corsOptions));
 // Routes
 app.use('/auth', authRoutes);
 app.use('/locations', locationRoutes);
+app.use('/api', require('./routes/commentRoutes'));
+app.use('/api', require('./routes/favoriteRoutes'));
 // Use other routes
 
 // Connect to MongoDB
