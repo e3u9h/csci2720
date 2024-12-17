@@ -4,6 +4,8 @@ const Event = require('../models/Event');
 const seedrandom = require('seedrandom');
 const dotenv = require('dotenv');
 dotenv.config();
+
+// Get all locations
 exports.getAllLocations = async (req, res) => {
     try {
         const locations = await Location.find().populate('events');
@@ -13,32 +15,85 @@ exports.getAllLocations = async (req, res) => {
     }
 };
 
-function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
-    const R = 6371; // Radius of the earth in km
-    const dLat = ((lat2 - lat1) * Math.PI) / 180;
-    const dLon = ((lon2 - lon1) * Math.PI) / 180;
-    const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const d = R * c; // Distance in km
-    return d;
-}
+// Get filtered locations
+exports.getFilteredLocations = async (req, res) => {
+    try {
+        console.log('Received filter request:', req.query);
+        
+        const { 
+            category = 'all',
+            distance = '50',
+            latitude,
+            longitude 
+        } = req.query;
 
-function shuffleArray(array, seed) {
-    const rng = seedrandom(seed);
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(rng() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+        // Build base query
+        let query = {};
+
+        // Add category filter if specified
+        if (category !== 'all') {
+            query = {
+                events: {
+                    $elemMatch: { category: category }
+                }
+            };
+        }
+
+        console.log('Executing query:', query);
+
+        // Get locations
+        let locations = await Location.find(query).populate('events');
+        console.log(`Found ${locations.length} locations before distance filter`);
+
+        // Transform locations for response
+        let transformedLocations = locations.map(location => {
+            const plainLoc = location.toObject();
+            let dist = null;
+
+            if (latitude && longitude) {
+                dist = getDistanceFromLatLonInKm(
+                    parseFloat(latitude),
+                    parseFloat(longitude),
+                    location.latitude,
+                    location.longitude
+                );
+            }
+
+            return {
+                ...plainLoc,
+                distance: dist ? Number(dist.toFixed(1)) : null
+            };
+        });
+
+        // Apply distance filter if coordinates provided
+        if (latitude && longitude) {
+            const maxDistance = parseFloat(distance);
+            transformedLocations = transformedLocations.filter(loc => 
+                loc.distance !== null && loc.distance <= maxDistance
+            );
+            
+            // Sort by distance
+            transformedLocations.sort((a, b) => a.distance - b.distance);
+        }
+
+        console.log(`Returning ${transformedLocations.length} locations after filtering`);
+
+        res.json({
+            total: transformedLocations.length,
+            locations: transformedLocations
+        });
+
+    } catch (err) {
+        console.error('Error in getFilteredLocations:', err);
+        res.status(500).json({ 
+            error: 'Error filtering locations',
+            details: err.message 
+        });
     }
-    return array;
-}
+};
 
+// Get ten random locations
 exports.getTenRandomLocations = async (req, res) => {
-
     console.log('getTenRandomLocations');
     try {
         const locations = await Location.find({
@@ -50,7 +105,7 @@ exports.getTenRandomLocations = async (req, res) => {
             return res.status(404).json({ message: 'No locations found with at least 3 events.' });
         }
 
-        // suffule the locations and select 10 locations that are at least 1km apart
+        // shuffle the locations and select 10 locations that are at least 1km apart
         const seed = process.env.RANDOM_SEED || 'randomseed'
         const shuffledLocations = shuffleArray(locations, seed);
         const selectedLocations = [];
@@ -78,7 +133,6 @@ exports.getTenRandomLocations = async (req, res) => {
             }
         }
 
-        // if less than 10 locations are found, return all locations
         res.json(selectedLocations);
     } catch (err) {
         console.error('Error fetching locations:', err);
@@ -86,7 +140,7 @@ exports.getTenRandomLocations = async (req, res) => {
     }
 };
 
-// Example: Create a new location (Admin)
+// Create a new location (Admin only)
 exports.createLocation = async (req, res) => {
     const { name, latitude, longitude } = req.body;
     try {
@@ -98,10 +152,6 @@ exports.createLocation = async (req, res) => {
     }
 };
 
-// Additional CRUD operations (update, delete, etc.)
-
-// In locationController.js
-
 // Search locations by keyword
 exports.searchLocations = async (req, res) => {
     try {
@@ -112,10 +162,7 @@ exports.searchLocations = async (req, res) => {
             return res.status(400).json({ message: 'Search keyword is required' });
         }
 
-        // Create a case-insensitive search regex
         const searchRegex = new RegExp(keyword, 'i');
-
-        // Search in multiple fields
         const locations = await Location.find({
             $or: [
                 { name: searchRegex },
@@ -131,6 +178,7 @@ exports.searchLocations = async (req, res) => {
     }
 };
 
+// Get location by ID
 exports.getLocationById = async (req, res) => {
     try {
         const location = await Location.findById(req.params.id).populate('events');
@@ -142,3 +190,28 @@ exports.getLocationById = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+// Helper function for distance calculation
+function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Radius of the earth in km
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+}
+
+// Helper function for array shuffling
+function shuffleArray(array, seed) {
+    const rng = seedrandom(seed);
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}

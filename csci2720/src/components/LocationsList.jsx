@@ -1,193 +1,252 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import {
-    Box,
-    Typography,
-    Button,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
+import { 
+    Box, 
+    Typography, 
+    Slider, 
+    FormControl, 
+    Select, 
+    MenuItem, 
+    Table, 
+    TableBody, 
+    TableCell, 
+    TableContainer, 
+    TableHead, 
+    TableRow, 
     Paper,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    TextField,
-    Stack,
+    Alert,
+    CircularProgress 
 } from '@mui/material';
-import { ArrowUpward, ArrowDownward, FilterList } from '@mui/icons-material';
+import { Link } from 'react-router-dom';
+import API from '../services/api';
 
-const LocationsList = ({ locations }) => {
-    const [sortAsc, setSortAsc] = useState(true);
-    const [filterOpen, setFilterOpen] = useState(false);
-    const [category, setCategory] = useState('all');
-    const [distance, setDistance] = useState('');
-    const [userLocation, setUserLocation] = useState(null);
-    const [filteredLocations, setFilteredLocations] = useState(locations);
+const LocationsListWithFilter = () => {
+  const [distance, setDistance] = useState(50);
+  const [category, setCategory] = useState('all');
+  const [locations, setLocations] = useState([]);
+  const [userLocation, setUserLocation] = useState(null);
+  const [locationLoading, setLocationLoading] = useState(true);
+  const [dataLoading, setDataLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-    // Categories from the events.xml file
-    const categories = [
-        { value: 'inc4', label: 'Sports & Recreation' },
-        { value: 'inc7', label: 'Library Activities' },
-        // Add more categories as needed
-    ];
+  const categories = [
+    { value: 'inc4', label: 'Sports & Recreation' },
+    { value: 'inc7', label: 'Library Activities' }
+  ];
 
-    useEffect(() => {
-        // Get user's location when component mounts
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    setUserLocation({
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    });
-                },
-                (error) => {
-                    console.error("Error getting location:", error);
-                }
-            );
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+          setLocationLoading(false);
+        },
+        (error) => {
+          console.warn("Location error:", error);
+          setLocationLoading(false);
         }
-    }, []);
+      );
+    }
+  }, []);
 
-    const calculateDistance = (lat1, lon1, lat2, lon2) => {
-        const R = 6371; // Earth's radius in km
-        const dLat = (lat2 - lat1) * Math.PI / 180;
-        const dLon = (lon2 - lon1) * Math.PI / 180;
-        const a = 
-            Math.sin(dLat/2) * Math.sin(dLat/2) +
-            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-            Math.sin(dLon/2) * Math.sin(dLon/2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        return R * c;
+  useEffect(() => {
+    const fetchLocations = async () => {
+      try {
+        setDataLoading(true);
+        const params = new URLSearchParams({
+          category,
+          distance: distance.toString()
+        });
+
+        if (userLocation) {
+          params.append('latitude', userLocation.lat.toString());
+          params.append('longitude', userLocation.lng.toString());
+        }
+
+        const response = await API.get(`/locations/filter?${params}`);
+        setLocations(response.data.locations);
+        setError(null);
+      } catch (err) {
+        setError(err.message);
+        setLocations([]);  // 确保在错误时清空位置列表
+      } finally {
+        setDataLoading(false);
+      }
     };
 
-    const applyFilters = () => {
-        let filtered = [...locations];
+    const timeoutId = setTimeout(fetchLocations, 300);
+    return () => clearTimeout(timeoutId);
+  }, [distance, category, userLocation]);
 
-        // Filter by category
-        if (category !== 'all') {
-            filtered = filtered.filter(location => 
-                location.events.some(event => event.category === category)
-            );
-        }
-
-        // Filter by distance if user location and distance are available
-        if (userLocation && distance) {
-            filtered = filtered.filter(location => {
-                const dist = calculateDistance(
-                    userLocation.lat,
-                    userLocation.lng,
-                    location.latitude,
-                    location.longitude
-                );
-                return dist <= parseFloat(distance);
-            });
-        }
-
-        setFilteredLocations(filtered);
-        setFilterOpen(false);
-    };
-
-    const sortedLocations = [...filteredLocations].sort((a, b) => {
-        if (sortAsc) return a.events.length - b.events.length;
-        return b.events.length - a.events.length;
-    });
-
-    const handleFilterOpen = () => setFilterOpen(true);
-    const handleFilterClose = () => setFilterOpen(false);
-
-    const toggleSort = () => setSortAsc(!sortAsc);
-
-    return (
-        <Box sx={{ padding: 4 }}>
-            <Typography variant="h4" gutterBottom>
-                Locations
+  return (
+    <Box sx={{ 
+      height: 'calc(100vh - 64px)',  // 减去顶部导航栏的高度
+      display: 'flex', 
+      flexDirection: 'column',
+      overflow: 'hidden',  // 防止整体滚动
+      bgcolor: '#f5f5f5'
+    }}>
+      {/* 标题和过滤器区域 - 固定高度 */}
+      <Box sx={{ 
+        p: 3,
+        backgroundColor: 'white',
+        borderBottom: 1,
+        borderColor: 'divider'
+      }}>
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center'
+        }}>
+          <Typography variant="h4" sx={{ fontWeight: 500 }}>Location List</Typography>
+          
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 2,
+            backgroundColor: 'background.paper',
+            p: 2,
+            borderRadius: 1,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
+            width: 'auto',
+            position: 'relative'
+          }}>
+            {locationLoading && (
+              <CircularProgress 
+                size={20} 
+                sx={{ 
+                  position: 'absolute',
+                  left: -30
+                }} 
+              />
+            )}
+            
+            <Typography sx={{ minWidth: 'auto', whiteSpace: 'nowrap' }}>
+              Distance: {distance}km
             </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, marginBottom: 2 }}>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={toggleSort}
-                    startIcon={sortAsc ? <ArrowUpward /> : <ArrowDownward />}
-                >
-                    Sort by Number of Events ({sortAsc ? 'Ascending' : 'Descending'})
-                </Button>
-                <Button
-                    variant="outlined"
-                    startIcon={<FilterList />}
-                    onClick={handleFilterOpen}
-                >
-                    Filter
-                </Button>
-            </Box>
-
-            <Dialog open={filterOpen} onClose={handleFilterClose}>
-                <DialogTitle>Filter Locations</DialogTitle>
-                <DialogContent>
-                    <Stack spacing={3} sx={{ minWidth: 300, mt: 2 }}>
-                        <FormControl fullWidth>
-                            <InputLabel>Category</InputLabel>
-                            <Select
-                                value={category}
-                                label="Category"
-                                onChange={(e) => setCategory(e.target.value)}
-                            >
-                                <MenuItem value="all">All Categories</MenuItem>
-                                {categories.map((cat) => (
-                                    <MenuItem key={cat.value} value={cat.value}>
-                                        {cat.label}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                        <TextField
-                            type="number"
-                            label="Distance (km)"
-                            value={distance}
-                            onChange={(e) => setDistance(e.target.value)}
-                            InputProps={{ inputProps: { min: 0 } }}
-                        />
-                    </Stack>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleFilterClose}>Cancel</Button>
-                    <Button onClick={applyFilters} variant="contained">
-                        Apply Filters
-                    </Button>
-                </DialogActions>
-            </Dialog>
-
-            <TableContainer component={Paper}>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell><Typography variant="h6">Name</Typography></TableCell>
-                            <TableCell><Typography variant="h6">Number of Events</Typography></TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {sortedLocations.map(location => (
-                            <TableRow key={location._id}>
-                                <TableCell>
-                                    <Link to={`/locations/${location._id}`} style={{ textDecoration: 'none', color: '#1976d2' }}>
-                                        {location.name}
-                                    </Link>
-                                </TableCell>
-                                <TableCell>{location.events.length}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+            <Slider
+              value={distance}
+              onChange={(_, newValue) => setDistance(newValue)}
+              min={0}
+              max={50}
+              size="small"
+              sx={{ width: 200 }}
+            />
+            <FormControl sx={{ minWidth: 150 }}>
+              <Select
+                value={category}
+                size="small"
+                onChange={(e) => setCategory(e.target.value)}
+              >
+                <MenuItem value="all">All Categories</MenuItem>
+                {categories.map((cat) => (
+                  <MenuItem key={cat.value} value={cat.value}>
+                    {cat.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
         </Box>
-    );
+      </Box>
+
+      {/* 表格区域 - 剩余高度 */}
+      <Box sx={{ 
+        flex: 1,
+        p: 3,
+        overflow: 'hidden',
+        position: 'relative'
+      }}>
+        {error && (
+          <Alert 
+            severity="warning" 
+            sx={{ 
+              mb: 2,
+              position: 'absolute',
+              top: 24,
+              left: 24,
+              right: 24,
+              zIndex: 1
+            }}
+          >
+            {error}
+          </Alert>
+        )}
+        
+        <TableContainer 
+          component={Paper} 
+          sx={{ 
+            height: '100%',
+            position: 'relative',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.12)'
+          }}
+        >
+          <Table stickyHeader sx={{ tableLayout: 'fixed' }}>
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ width: '40%', bgcolor: 'background.paper' }}>Name</TableCell>
+                <TableCell sx={{ width: '30%', bgcolor: 'background.paper' }}>Distance</TableCell>
+                <TableCell sx={{ width: '30%', bgcolor: 'background.paper' }}>Events</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {!dataLoading && locations.map(location => (
+                <TableRow key={location._id} hover>
+                  <TableCell>
+                    <Link 
+                      to={`/locations/${location._id}`}
+                      style={{ 
+                        textDecoration: 'none', 
+                        color: '#1976d2',
+                        display: 'block',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {location.name}
+                    </Link>
+                  </TableCell>
+                  <TableCell>
+                    {location.distance != null ? `${location.distance} km` : 'N/A'}
+                  </TableCell>
+                  <TableCell>{location.events?.length || 0}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+
+          {dataLoading && (
+            <Box sx={{ 
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'rgba(255, 255, 255, 0.7)'
+            }}>
+              <CircularProgress />
+            </Box>
+          )}
+
+          {!dataLoading && locations.length === 0 && (
+            <Box sx={{ 
+              textAlign: 'center', 
+              py: 8,
+              color: 'text.secondary'
+            }}>
+              <Typography>No locations found</Typography>
+            </Box>
+          )}
+        </TableContainer>
+      </Box>
+    </Box>
+  );
 };
 
-export default LocationsList;
+export default LocationsListWithFilter;
