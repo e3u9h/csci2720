@@ -15,6 +15,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import theme from './theme'; // Path to your custom theme
 import { Container } from '@mui/material';
 import API from './services/api';
+import LocationSearch from './components/LocationSearch';
 
 const App = () => {
   const [locations, setLocations] = useState([]);
@@ -74,6 +75,14 @@ const App = () => {
                   <AdminRoute>
                     <AdminDashboard />
                   </AdminRoute>
+                }
+              />
+              <Route
+                path="/search"
+                element={
+                  <PrivateRoute>
+                    <LocationSearch />
+                  </PrivateRoute>
                 }
               />
               <Route path="/" element={<Navigate to="/locations" />} />

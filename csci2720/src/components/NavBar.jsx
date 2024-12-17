@@ -35,6 +35,9 @@ const NavBar = () => {
                             <Button color="inherit" component={Link} to="/map" startIcon={<MapIcon />}>
                                 Map
                             </Button>
+                            <Button color="inherit" component={Link} to="/search ">
+                                Search
+                            </Button>
                             {auth.isAdmin && (
                                 <Button color="inherit" component={Link} to="/admin">
                                     Admin Dashboard

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import API from '../services/api';
 
 const LocationSearch = () => {
   const [searchKeyword, setSearchKeyword] = useState('');
@@ -21,7 +21,7 @@ const LocationSearch = () => {
 
     try {
       // Replace with your actual API endpoint
-      const response = await axios.get(`/api/locations/search?keyword=${searchKeyword}`);
+      const response = await API.get(`/locations/search?keyword=${searchKeyword}`);
       setLocations(response.data);
       setError('');
     } catch (err) {

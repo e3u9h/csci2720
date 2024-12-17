@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import API from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 import {
     Box,
@@ -24,7 +24,7 @@ const Favorites = () => {
         const fetchFavorites = async () => {
             try {
                 setLoading(true);
-                const { data } = await axios.get('/api/users/favorites', {
+                const { data } = await API.get('/api/users/favorites', {
                     headers: { Authorization: `Bearer ${auth.token}` }
                 });
                 setFavorites(data);

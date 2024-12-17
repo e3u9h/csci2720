@@ -105,6 +105,7 @@ exports.createLocation = async (req, res) => {
 // Search locations by keyword
 exports.searchLocations = async (req, res) => {
     try {
+        console.log('searchLocations');
         const { keyword } = req.query;
         
         if (!keyword) {
