@@ -34,9 +34,9 @@ const NavBar = ({ toggleTheme, mode }) => {
                             <Button color="inherit" component={Link} to="/locations">
                                 Locations
                             </Button>
-                            <Button color="inherit" component={Link} to="/favorites">
+                            {!auth.isAdmin && (<Button color="inherit" component={Link} to="/favorites">
                                 Favorites
-                            </Button>
+                            </Button>)}
                             <Button color="inherit" component={Link} to="/map" startIcon={<MapIcon />}>
                                 Map
                             </Button>

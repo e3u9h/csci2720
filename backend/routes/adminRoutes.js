@@ -7,12 +7,6 @@ const isAdmin = require('../middleware/authorizeAdmin');
 // Apply authentication middleware for all admin routes
 router.use(authenticate); // First, authenticate the user
 
-// Admin actions routes for locations
-router.post('/locations', isAdmin, adminController.createLocation);
-router.get('/locations', isAdmin, adminController.getAllLocations);
-router.put('/locations/:id', isAdmin, adminController.updateLocation);
-router.delete('/locations/:id', isAdmin, adminController.deleteLocation);
-
 // Admin actions routes for users
 router.post('/users', isAdmin, adminController.createUser);
 router.get('/users', isAdmin, adminController.getAllUsers);
@@ -27,8 +21,10 @@ router.delete('/admins/:id', isAdmin, adminController.deleteAdmin); // Ensure th
 
 // Add the route for creating events
 router.post('/events', isAdmin, adminController.createEvent);
+router.get('/events', isAdmin, adminController.getSomeEvents);
+router.put('/events/:id', isAdmin, adminController.updateEvent);
+router.delete('/events/:id', isAdmin, adminController.deleteEvent);
 
-// Modify a user (admin or regular)
-router.put('/users/:id', isAdmin, adminController.modifyUser); // Ensure this is present
+
 
 module.exports = router;

@@ -7,30 +7,36 @@ import { register as apiRegister, login as apiLogin, } from '../services/api';
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const [auth, setAuth] = useState({
-        token: localStorage.getItem('token') || null,
-        user: null,
-        username: null,
-        isAdmin: false,
-    });
-
-    useEffect(() => {
-        if (auth.token) {
+    const [auth, setAuth] = useState(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
             try {
-                const decoded = jwtDecode(auth.token);
-                setAuth((prevAuth) => ({
-                    ...prevAuth,
+                const decoded = jwtDecode(token);
+                return {
+                    token,
                     user: decoded,
                     username: decoded.username,
-                    isAdmin: decoded.isAdmin, // Adjust based on your token structure
-                }));
+                    isAdmin: decoded.isAdmin
+                };
             } catch (error) {
-                console.error('Invalid token:', error);
-                setAuth({ token: null, user: null, isAdmin: false });
-                localStorage.removeItem('token'); // Optional: Remove invalid token
+                console.error(error);
+                localStorage.removeItem('token');
+                return {
+                    token: null,
+                    user: null,
+                    username: null,
+                    isAdmin: false,
+                };
             }
+        } else {
+            return {
+                token: null,
+                user: null,
+                username: null,
+                isAdmin: false,
+            };
         }
-    }, [auth.token]);
+    });
 
     // Login function
     const login = async (username, password, role) => {
@@ -42,8 +48,10 @@ export const AuthProvider = ({ children }) => {
             setAuth({
                 token: token,
                 user: decoded,
+                username: decoded.username,
                 isAdmin: role === 'admin',
             });
+            console.log('Logged in:', auth);
             return true;
         } catch (error) {
             console.error('Login error:', error);

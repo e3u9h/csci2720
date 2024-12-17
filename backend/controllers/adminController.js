@@ -1,18 +1,13 @@
 const Location = require('../models/Location');
 const User = require('../models/User');
 const Admin = require('../models/Admin');
+const isAdmin = require('../middleware/authorizeAdmin');
+const Event = require('../models/Event');
 
-// Middleware to check if the user is an admin
-const isAdmin = (req, res, next) => {
-    if (req.user && req.user.isAdmin) {
-        next(); // Proceed if the user is admin
-    } else {
-        return res.status(403).json({ error: 'Access denied' }); // Deny access if not admin
-    }
-};
+
 // Create a new event
 exports.createEvent = async (req, res) => {
-    isAdmin(req, res, async () => {
+
         try {
             const event = new Event(req.body);
             await event.save();
@@ -24,58 +19,43 @@ exports.createEvent = async (req, res) => {
         } catch (error) {
             res.status(400).json({ message: error.message });
         }
-    });
 };
-// Create a new location
-exports.createLocation = async (req, res) => {
-    isAdmin(req, res, async () => { // This should be handled in the route instead
+
+exports.getSomeEvents = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        console.log(req.query);
+        const events = await Event.find().skip((page - 1) * limit).limit(limit);
+        console.log(events);
+        res.status(200).json(events);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.updateEvent = async (req, res) => {
         try {
-            const location = new Location(req.body);
-            await location.save();
-            res.status(201).json(location);
+            const event = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
+            if (!event) return res.status(404).json({ message: 'Event not found' });
+            res.status(200).json(event);
         } catch (error) {
             res.status(400).json({ message: error.message });
         }
-    });
+
 };
 
-// Get all locations
-exports.getAllLocations = async (req, res) => {
-    isAdmin(req, res, async () => {
-        try {
-            const locations = await Location.find();
-            res.status(200).json(locations);
-        } catch (error) {
-            res.status(500).json({ message: error.message });
-        }
-    });
-};
+exports.deleteEvent = async (req, res) => {
+    try {
+        const event = await Event.findByIdAndDelete(req.params.id);
+        if (!event) return res.status(404).json({ message: 'Event not found' });
+        res.status(204).send();
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+}
 
-// Update a location
-exports.updateLocation = async (req, res) => {
-    isAdmin(req, res, async () => {
-        try {
-            const location = await Location.findByIdAndUpdate(req.params.id, req.body, { new: true });
-            if (!location) return res.status(404).json({ message: 'Location not found' });
-            res.status(200).json(location);
-        } catch (error) {
-            res.status(400).json({ message: error.message });
-        }
-    });
-};
 
-// Delete a location
-exports.deleteLocation = async (req, res) => {
-    isAdmin(req, res, async () => {
-        try {
-            const location = await Location.findByIdAndDelete(req.params.id);
-            if (!location) return res.status(404).json({ message: 'Location not found' });
-            res.status(204).send();
-        } catch (error) {
-            res.status(500).json({ message: error.message });
-        }
-    });
-};
 
 // Create a new user
 exports.createUser = async (req, res) => {
@@ -114,15 +94,19 @@ exports.getAllUsers = async (req, res) => {
 
 // Update a user
 exports.updateUser = async (req, res) => {
-    isAdmin(req, res, async () => {
+
         try {
-            const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
+            const user = await User.findById(req.params.id);
+            const newUsername = req.body.username;
+            const newPassword = req.body.password;
             if (!user) return res.status(404).json({ message: 'User not found' });
+            user.username = newUsername;
+            user.password = newPassword;
+            await user.save();
             res.status(200).json(user);
         } catch (error) {
             res.status(400).json({ message: error.message });
         }
-    });
 };
 
 // Delete a user
@@ -173,13 +157,18 @@ exports.getAllAdmins = async (req, res) => {
 // Update a specific admin
 exports.updateAdmin = async (req, res) => {
     const { id } = req.params;
-    const updates = req.body;
+    const newUsername = req.body.username;
+    const newPassword = req.body.password;
 
     try {
-        const admin = await Admin.findByIdAndUpdate(id, updates, { new: true });
+        const admin = await Admin.findById(id);
+
         if (!admin) {
             return res.status(404).json({ message: 'Admin not found' });
         }
+        admin.password = newPassword;
+        admin.username = newUsername;
+        await admin.save();
         res.status(200).json(admin);
     } catch (error) {
         console.error('Error updating admin:', error);
@@ -202,39 +191,4 @@ exports.deleteAdmin = async (req, res) => {
         res.status(500).json({ message: error.message || 'Error deleting admin' });
     }
 };
-// Modify a user (admin or regular)
-exports.modifyUser = async (req, res) => {
-    const { id } = req.params;
-    const { username, password, isAdmin } = req.body;
 
-    if (!username) {
-        return res.status(400).json({ message: 'Username is required' });
-    }
-
-    try {
-        let updatedUser;
-
-        // Check if the user is an admin or regular user based on the ID
-        if (isAdmin) {
-            updatedUser = await Admin.findByIdAndUpdate(id, { username, password }, { new: true });
-        } else {
-            updatedUser = await User.findByIdAndUpdate(id, { username, password }, { new: true });
-        }
-
-        // Hash the password if it has been changed
-        if (password) {
-            const salt = await bcrypt.genSalt(10);
-            updatedUser.password = await bcrypt.hash(password, salt);
-            await updatedUser.save();
-        }
-
-        if (!updatedUser) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        res.status(200).json(updatedUser);
-    } catch (error) {
-        console.error('Error modifying user:', error);
-        res.status(500).json({ message: error.message || 'Error modifying user' });
-    }
-};

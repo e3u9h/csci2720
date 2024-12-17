@@ -126,6 +126,7 @@ const PrivateRoute = ({ children }) => {
 
 const AdminRoute = ({ children }) => {
   const { auth } = useContext(AuthContext);
+  console.log("111", auth);
   return auth.token && auth.isAdmin ? children : <Navigate to="/login" />;
 };
 
