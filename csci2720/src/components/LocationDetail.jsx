@@ -20,6 +20,7 @@ const LocationDetail = () => {
         };
         const fetchComments = async () => {
             const { data } = await API.get(`/api/locations/${id}/comments`);
+            console.log(data);
             setComments(data);
         };
         const checkFavorite = async () => {

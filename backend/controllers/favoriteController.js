@@ -3,11 +3,8 @@ const jwt = require('jsonwebtoken');
 
 exports.getFavorites = async (req, res) => {
     try {
-        const token = req.header('Authorization')?.split(' ')[1];
-        console.log('token', token);
-        const userID = jwt.verify(token, process.env.JWT_SECRET).id;
+        const userID = req.user.id;
         console.log('userID', userID);
-        console.log(jwt.verify(token, process.env.JWT_SECRET));
         const user = await User.findById(userID).populate({
             path: 'favorites',
             populate: {

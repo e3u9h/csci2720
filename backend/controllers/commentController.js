@@ -1,10 +1,12 @@
 const Comment = require('../models/Comment');
 
 exports.getLocationComments = async (req, res) => {
+    console.log('req.params.locationId', req.params.locationId);
     try {
         const comments = await Comment.find({ location: req.params.locationId })
             .populate('user', 'username')  // Only get username from user document
             .sort('-createdAt');  // Sort by newest first
+        console.log('comments', comments);
         res.json(comments);
     } catch (error) {
         console.error('Error fetching comments:', error);
@@ -16,7 +18,7 @@ exports.addComment = async (req, res) => {
     try {
         const comment = new Comment({
             text: req.body.text,
-            user: req.user._id,  // From authenticate middleware
+            user: req.user.id,  // From authenticate middleware
             location: req.params.locationId,
         });
 

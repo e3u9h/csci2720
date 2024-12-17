@@ -13,7 +13,6 @@ const NavBar = ({ toggleTheme, mode }) => {
 
     const handleThemeToggle = () => {
         toggleTheme();
-        setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
     };
 
     const handleLogout = () => {
