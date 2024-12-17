@@ -1,5 +1,5 @@
 // src/App.jsx
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import Login from './components/Login';
@@ -18,6 +18,7 @@ import API from './services/api';
 import LocationSearch from './components/LocationSearch';
 
 const App = () => {
+  const { auth } = useContext(AuthContext);
   const [mode, setMode] = useState(() => {
     const savedMode = localStorage.getItem('themeMode');
     return savedMode ? savedMode : 'light';
@@ -37,17 +38,26 @@ const App = () => {
 
   useEffect(() => {
     const getLocations = async () => {
-      const { data } = await API.get('/locations/tenrandom').catch(console.error);
+      if (!auth.token) return;
+      const { data } = await API.get('/locations/tenrandom');
       setLocations(data);
     };
     getLocations();
-  }, []);
+  }, [auth.token]);
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <AuthProvider>
         <Router>
-          <Container maxWidth="lg" sx={{ height: '100vh', padding: 2 }}>
+        <Container
+          maxWidth={false}
+          sx={{
+            height: '100vh',
+            padding: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            backgroundColor: 'background.default',
+          }}
+        >
             <NavBar toggleTheme={toggleTheme} mode={mode} />
             <Routes>
               <Route path="/login" element={<Login />} />
@@ -104,19 +114,18 @@ const App = () => {
               <Route path="*" element={<Navigate to="/login" />} />
             </Routes>
           </Container>
-        </Router>
-      </AuthProvider>
+      </Router>
     </ThemeProvider>
   );
 };
 
 const PrivateRoute = ({ children }) => {
-  const { auth } = React.useContext(AuthContext);
+  const { auth } = useContext(AuthContext);
   return auth.token ? children : <Navigate to="/login" />;
 };
 
 const AdminRoute = ({ children }) => {
-  const { auth } = React.useContext(AuthContext);
+  const { auth } = useContext(AuthContext);
   return auth.token && auth.isAdmin ? children : <Navigate to="/login" />;
 };
 
