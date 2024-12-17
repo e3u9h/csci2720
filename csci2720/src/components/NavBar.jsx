@@ -1,14 +1,22 @@
 // src/components/NavBar.jsx
 
-import React, { useContext } from 'react';
-import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
+import React, { useContext, useState } from 'react';
+import { AppBar, Toolbar, Typography, Button, Box, IconButton } from '@mui/material';
 import MapIcon from '@mui/icons-material/Map';
+import { Brightness4, Brightness7 } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
-const NavBar = () => {
+const NavBar = ({ toggleTheme }) => {
     const navigate = useNavigate();
     const { auth, logout } = useContext(AuthContext);
+
+    const [mode, setMode] = useState('light');
+
+    const handleThemeToggle = () => {
+        toggleTheme();
+        setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
+    };
 
     const handleLogout = () => {
         logout();
@@ -46,6 +54,9 @@ const NavBar = () => {
                             <Typography variant="body1" sx={{ marginLeft: 2, marginRight: 2 }}>
                                 Welcome, {auth.username}!
                             </Typography>
+                            <IconButton color="inherit" onClick={handleThemeToggle}>
+                                {mode === 'light' ? <Brightness4 /> : <Brightness7 />}
+                            </IconButton>
                             <Button color="inherit" onClick={handleLogout}>
                                 Logout
                             </Button>

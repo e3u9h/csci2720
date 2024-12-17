@@ -12,12 +12,20 @@ import NavBar from './components/NavBar'; // Optional: Navigation bar
 import MapView from './components/MapView'; // Import MapView component
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import theme from './theme'; // Path to your custom theme
+import getTheme from './theme'; // Path to your custom theme
 import { Container } from '@mui/material';
 import API from './services/api';
 import LocationSearch from './components/LocationSearch';
 
 const App = () => {
+  const [mode, setMode] = useState('light');
+
+  const toggleTheme = () => {
+    setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
+  };
+
+  const theme = getTheme(mode);
+
   const [locations, setLocations] = useState([]);
 
   useEffect(() => {
@@ -33,7 +41,7 @@ const App = () => {
       <AuthProvider>
         <Router>
           <Container maxWidth="lg" sx={{ height: '100vh', padding: 2 }}>
-            <NavBar />
+            <NavBar toggleTheme={toggleTheme} />
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} /> {/* Add Register route */}

@@ -1,16 +1,21 @@
 // src/theme.js
 import { createTheme } from '@mui/material/styles';
 
-const theme = createTheme({
-    palette: {
-        primary: {
-            main: '#1976d2', // Customize your primary color
+const getTheme = (mode) =>
+    createTheme({
+        palette: {
+            mode,
+            primary: {
+                main: '#1976d2',
+            },
+            secondary: {
+                main: '#dc004e',
+            },
+            background: {
+                default: mode === 'light' ? '#ffffff' : '#121212',
+                paper: mode === 'light' ? '#f5f5f5' : '#1e1e1e',
+            },
         },
-        secondary: {
-            main: '#dc004e', // Customize your secondary color
-        },
-    },
-    // Add more customizations as needed
-});
+    });
 
-export default theme;
+export default getTheme;
