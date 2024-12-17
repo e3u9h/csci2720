@@ -131,3 +131,14 @@ exports.searchLocations = async (req, res) => {
     }
 };
 
+exports.getLocationById = async (req, res) => {
+    try {
+        const location = await Location.findById(req.params.id).populate('events');
+        if (!location) {
+            return res.status(404).json({ message: 'Location not found' });
+        }
+        res.json(location);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};

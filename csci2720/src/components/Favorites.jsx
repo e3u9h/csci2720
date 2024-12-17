@@ -24,7 +24,7 @@ const Favorites = () => {
         const fetchFavorites = async () => {
             try {
                 setLoading(true);
-                const { data } = await API.get('/api/users/favorites', {
+                const { data } = await API.get('/api/favorites', {
                     headers: { Authorization: `Bearer ${auth.token}` }
                 });
                 setFavorites(data);

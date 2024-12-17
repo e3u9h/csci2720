@@ -4,6 +4,7 @@ const {
     getAllLocations,
     getTenRandomLocations,
     createLocation,
+    getLocationById,
     // other controllers
 } = require('../controllers/locationController');
 const authenticate = require('../middleware/authenticate');
@@ -14,6 +15,7 @@ router.get('/', authenticate, getAllLocations);
 router.post('/', authenticate, authorizeAdmin, createLocation);
 router.get('/tenrandom', authenticate, getTenRandomLocations);
 router.get('/search', authenticate, searchLocations);
+router.get('/:id', authenticate, getLocationById);
 // Additional routes for update, delete
 
 module.exports = router;

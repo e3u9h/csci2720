@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import axios from 'axios';
+import API from '../services/api';
+import MapView from './MapView';
 
 const LocationDetail = () => {
     const { id } = useParams();
@@ -13,15 +14,15 @@ const LocationDetail = () => {
 
     useEffect(() => {
         const fetchLocation = async () => {
-            const { data } = await axios.get(`http://localhost:5000/api/locations/${id}`);
+            const { data } = await API.get(`/locations/${id}`);
             setLocation(data);
         };
         const fetchComments = async () => {
-            const { data } = await axios.get(`http://localhost:5000/api/locations/${id}/comments`);
+            const { data } = await API.get(`/api/locations/${id}/comments`);
             setComments(data);
         };
         const checkFavorite = async () => {
-            const { data } = await axios.get('http://localhost:5000/api/users/favorites');
+            const { data } = await API.get('/api/favorites');
             setIsFavorite(data.some(fav => fav._id === id));
         };
         fetchLocation();
@@ -33,12 +34,12 @@ const LocationDetail = () => {
 
     const handleAddComment = async () => {
         if (!newComment) return;
-        await axios.post(`http://localhost:5000/api/locations/${id}/comments`, {
+        await API.post(`/api/locations/${id}/comments`, {
             text: newComment,
         });
         setNewComment('');
         // Refresh comments
-        const { data } = await axios.get(`http://localhost:5000/api/locations/${id}/comments`);
+        const { data } = await API.get(`/api/locations/${id}/comments`);
         setComments(data);
     };
 
@@ -47,9 +48,9 @@ const LocationDetail = () => {
         
         try {
             if (isFavorite) {
-                await axios.delete(`http://localhost:5000/api/users/favorites/${id}`);
+                await API.delete(`/api/favorites/${id}`);
             } else {
-                await axios.post(`http://localhost:5000/api/users/favorites/${id}`);
+                await API.post(`/api/favorites/${id}`);
             }
             setIsFavorite(!isFavorite);
         } catch (err) {
@@ -89,6 +90,7 @@ const LocationDetail = () => {
             ></textarea>
             <br />
             <button onClick={handleAddComment}>Submit Comment</button>
+            <MapView locations={[location]} />
         </div>
     );
 };

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import API from '../services/api';
+import { Link } from 'react-router-dom';
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 
 const LocationSearch = () => {
   const [searchKeyword, setSearchKeyword] = useState('');
@@ -53,26 +55,28 @@ const LocationSearch = () => {
 
       {/* Results Table */}
       {locations.length > 0 && (
-        <table className="locations-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Address</th>
-              <th>Coordinates</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell><Typography variant="h6">Name</Typography></TableCell>
+                <TableCell><Typography variant="h6">Number of Events</Typography></TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
             {locations.map((location) => (
-              <tr key={location._id}>
-                <td>{location.name}</td>
-                <td>{location.address}</td>
-                <td>{`${location.latitude}, ${location.longitude}`}</td>
-                <td>{location.description}</td>
-              </tr>
+              <TableRow key={location._id}>
+                <TableCell>
+                  <Link to={`/locations/${location._id}`} style={{ textDecoration: 'none', color: '#1976d2' }}>
+                    {location.name}
+                  </Link>
+                </TableCell>
+                <TableCell>{location.events.length}</TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+            </TableBody>
+          </Table>
+        </TableContainer>
       )}
 
       {/* No Results Message */}

@@ -1,13 +1,20 @@
 const User = require('../models/User');
+const jwt = require('jsonwebtoken');
 
 exports.getFavorites = async (req, res) => {
     try {
-        const user = await User.findById(req.user.id).populate({
+        const token = req.header('Authorization')?.split(' ')[1];
+        console.log('token', token);
+        const userID = jwt.verify(token, process.env.JWT_SECRET).id;
+        console.log('userID', userID);
+        console.log(jwt.verify(token, process.env.JWT_SECRET));
+        const user = await User.findById(userID).populate({
             path: 'favorites',
             populate: {
                 path: 'events'
             }
         });
+        console.log('user', user);
         res.json(user.favorites);
     } catch (error) {
         console.error('Error fetching favorites:', error);
