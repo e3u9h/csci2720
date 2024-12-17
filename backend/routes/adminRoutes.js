@@ -1,21 +1,34 @@
 const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
-const authenticate = require('../middleware/authenticate'); // Ensure this is the correct path
-const isAdmin = require('../middleware/authorizeAdmin'); // Import your isAdmin check
+const authenticate = require('../middleware/authenticate');
+const isAdmin = require('../middleware/authorizeAdmin');
 
-// Apply authentication and admin check middleware for all admin routes
+// Apply authentication middleware for all admin routes
 router.use(authenticate); // First, authenticate the user
 
-// Admin actions routes
-router.post('/locations', isAdmin, adminController.createLocation); // Create a new location
-router.get('/locations', isAdmin, adminController.getAllLocations); // Get all locations
-router.put('/locations/:id', isAdmin, adminController.updateLocation); // Update a specific location
-router.delete('/locations/:id', isAdmin, adminController.deleteLocation); // Delete a specific location
+// Admin actions routes for locations
+router.post('/locations', isAdmin, adminController.createLocation);
+router.get('/locations', isAdmin, adminController.getAllLocations);
+router.put('/locations/:id', isAdmin, adminController.updateLocation);
+router.delete('/locations/:id', isAdmin, adminController.deleteLocation);
 
-router.post('/users', isAdmin, adminController.createUser); // Create a new user
-router.get('/users', isAdmin, adminController.getAllUsers); // Get all users
-router.put('/users/:id', isAdmin, adminController.updateUser); // Update a specific user
-router.delete('/users/:id', isAdmin, adminController.deleteUser); // Delete a specific user
+// Admin actions routes for users
+router.post('/users', isAdmin, adminController.createUser);
+router.get('/users', isAdmin, adminController.getAllUsers);
+router.put('/users/:id', isAdmin, adminController.updateUser);
+router.delete('/users/:id', isAdmin, adminController.deleteUser); // Ensure this is present
+
+// Admin actions routes for admins
+router.post('/admins', isAdmin, adminController.createAdmin);
+router.get('/admins', isAdmin, adminController.getAllAdmins);
+router.put('/admins/:id', isAdmin, adminController.updateAdmin);
+router.delete('/admins/:id', isAdmin, adminController.deleteAdmin); // Ensure this is present
+
+// Add the route for creating events
+router.post('/events', isAdmin, adminController.createEvent);
+
+// Modify a user (admin or regular)
+router.put('/users/:id', isAdmin, adminController.modifyUser); // Ensure this is present
 
 module.exports = router;
