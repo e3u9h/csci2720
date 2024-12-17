@@ -2,7 +2,7 @@
 
 import React, { createContext, useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
-import { register as apiRegister, login as apiLogin, logout as apiLogout } from '../services/api';
+import { register as apiRegister, login as apiLogin, } from '../services/api';
 
 export const AuthContext = createContext();
 
@@ -54,7 +54,6 @@ export const AuthProvider = ({ children }) => {
     // Logout function
     const logout = async () => {
         try {
-            await apiLogout();
             localStorage.removeItem('token');
             setAuth({ token: null, user: null, isAdmin: false });
         } catch (error) {

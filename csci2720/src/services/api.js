@@ -32,7 +32,6 @@ export default API;
 // API Functions
 export const register = (data) => API.post('/auth/register', data);
 export const login = (data) => API.post('/auth/login', data);
-export const logout = () => API.post('/auth/logout');
 export const fetchLocations = () => API.get('/locations');
 export const fetchLocationById = (id) => API.get(`/locations/${id}`);
 export const fetchFavorites = () => API.get('/favorites');
