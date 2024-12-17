@@ -7,11 +7,9 @@ import { Brightness4, Brightness7 } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
-const NavBar = ({ toggleTheme }) => {
+const NavBar = ({ toggleTheme, mode }) => {
     const navigate = useNavigate();
     const { auth, logout } = useContext(AuthContext);
-
-    const [mode, setMode] = useState('light');
 
     const handleThemeToggle = () => {
         toggleTheme();
@@ -28,7 +26,7 @@ const NavBar = ({ toggleTheme }) => {
             <Toolbar>
                 <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                     <Button color="inherit" component={Link} to="/">
-                        MyApp
+                        CSCI2720 Project
                     </Button>
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>

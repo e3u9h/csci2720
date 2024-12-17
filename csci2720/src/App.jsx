@@ -1,5 +1,5 @@
 // src/App.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import Login from './components/Login';
@@ -18,13 +18,20 @@ import API from './services/api';
 import LocationSearch from './components/LocationSearch';
 
 const App = () => {
-  const [mode, setMode] = useState('light');
+  const [mode, setMode] = useState(() => {
+    const savedMode = localStorage.getItem('themeMode');
+    return savedMode ? savedMode : 'light';
+  });
 
   const toggleTheme = () => {
-    setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
+    setMode((prevMode) => {
+      const newMode = prevMode === 'light' ? 'dark' : 'light';
+      localStorage.setItem('themeMode', newMode);
+      return newMode;
+    });
   };
 
-  const theme = getTheme(mode);
+  const theme = useMemo(() => getTheme(mode), [mode]);
 
   const [locations, setLocations] = useState([]);
 
@@ -41,7 +48,7 @@ const App = () => {
       <AuthProvider>
         <Router>
           <Container maxWidth="lg" sx={{ height: '100vh', padding: 2 }}>
-            <NavBar toggleTheme={toggleTheme} />
+            <NavBar toggleTheme={toggleTheme} mode={mode} />
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} /> {/* Add Register route */}
