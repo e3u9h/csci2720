@@ -16,6 +16,18 @@ const getTheme = (mode) =>
                 paper: mode === 'light' ? '#f5f5f5' : '#1e1e1e',
             },
         },
+        components: {
+            MuiCssBaseline: {
+                styleOverrides: {
+                    body: {
+                        backgroundColor: mode === 'light' ? '#ffffff' : '#121212',
+                        margin: 0,
+                        padding: 0,
+                        boxSizing: 'border-box',
+                    },
+                },
+            },
+        },
     });
 
 export default getTheme;

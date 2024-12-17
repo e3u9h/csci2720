@@ -56,11 +56,12 @@ const MapView = ({ locations }) => {
     return (
         <Box sx={{
             width: '100%',
-            height: '100vh',
+            height: '100%',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            padding: 2,
+            padding: 0,
+            overflow: 'hidden',
         }}>
             {API_KEY ? (
                 <APIProvider

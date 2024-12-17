@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import API from '../services/api';
 import MapView from './MapView';
+import { Box } from '@mui/material';
 
 const LocationDetail = () => {
     const { id } = useParams();
@@ -90,7 +91,9 @@ const LocationDetail = () => {
             ></textarea>
             <br />
             <button onClick={handleAddComment}>Submit Comment</button>
+            <Box sx={{ height: '30vh' }}>
             <MapView locations={[location]} />
+            </Box>
         </div>
     );
 };
