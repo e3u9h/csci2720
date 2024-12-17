@@ -7,6 +7,7 @@ dotenv.config();
 
 const authRoutes = require('./routes/authRoutes');
 const locationRoutes = require('./routes/locationRoutes');
+const adminRoutes = require('./routes/adminRoutes'); // Include admin routes
 // Include other routes as needed
 
 const app = express();
@@ -22,13 +23,13 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-
 // Routes
-app.use('/auth', authRoutes);
-app.use('/locations', locationRoutes);
-app.use('/api', require('./routes/commentRoutes'));
-app.use('/api', require('./routes/favoriteRoutes'));
-// Use other routes
+app.use('/auth', authRoutes); // Authentication routes
+app.use('/locations', locationRoutes); // Location-related routes
+app.use('/api', require('./routes/adminRoutes')); // Admin routes
+app.use('/api', require('./routes/commentRoutes')); // Comment routes
+app.use('/api', require('./routes/favoriteRoutes')); // Favorite routes
+// Use other routes as needed
 
 // Connect to MongoDB
 mongoose
