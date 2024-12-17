@@ -80,7 +80,7 @@ const App = () => {
                 path="/map"
                 element={
                   <PrivateRoute>
-                    <MapView locations={locations} />
+                    <MapView locations={locations} displayLink={true} />
                   </PrivateRoute>
                 }
               />

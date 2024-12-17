@@ -22,7 +22,7 @@ const PoiMarkers = ({ pois, onMarkerClick }) => {
     );
 };
 
-const MapView = ({ locations }) => {
+const MapView = ({ locations, displayLink }) => {
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [poi, setPoi] = useState([]);
     const [center, setCenter] = useState({ lat: 22.28552, lng: 114.15769 });
@@ -88,14 +88,14 @@ const MapView = ({ locations }) => {
                                     <Typography variant="body2" gutterBottom>
                                         {selectedLocation.description}
                                     </Typography>
-                                    <MUILink
+                                    {displayLink && (<MUILink
                                         component={RouterLink}
                                         to={`/locations/${selectedLocation._id}`}
                                         underline="hover"
                                         color="primary"
                                     >
                                         View Details
-                                    </MUILink>
+                                    </MUILink>)}
                                 </Paper>
                             </InfoWindow>
                         )}

@@ -93,7 +93,7 @@ const LocationDetail = () => {
             <br />
             <button onClick={handleAddComment}>Submit Comment</button>
             <Box sx={{ height: '30vh' }}>
-            <MapView locations={[location]} />
+                <MapView locations={[location]} displayLink={false} />
             </Box>
         </div>
     );
