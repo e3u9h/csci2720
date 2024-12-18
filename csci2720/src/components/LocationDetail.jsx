@@ -3,7 +3,23 @@ import { useParams } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import API from '../services/api';
 import MapView from './MapView';
-import { Box } from '@mui/material';
+import {
+    Box,
+    Button,
+    Card,
+    CardContent,
+    CardHeader,
+    CircularProgress,
+    Container,
+    Grid,
+    IconButton,
+    List,
+    ListItem,
+    ListItemText,
+    TextField,
+    Typography,
+} from '@mui/material';
+import { Favorite, FavoriteBorder } from '@mui/icons-material';
 
 const LocationDetail = () => {
     const { id } = useParams();
@@ -60,42 +76,88 @@ const LocationDetail = () => {
         }
     };
 
-    if (!location) return <div>Loading...</div>;
+    if (!location) return <CircularProgress />;
 
     return (
-        <div>
-            <h2>{location.name}</h2>
-            {auth && (
-                <button onClick={handleFavoriteToggle}>
-                    {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
-                </button>
-            )}
-            {/* Map Integration would go here */}
-            <p>Latitude: {location.latitude}</p>
-            <p>Longitude: {location.longitude}</p>
-            <h3>Events</h3>
-            <ul>
-                {location.events.map(event => (
-                    <li key={event._id}>{event.title} - {new Date(event.datetime).toLocaleString()}</li>
-                ))}
-            </ul>
-            <h3>Comments</h3>
-            <ul>
-                {comments.map(comment => (
-                    <li key={comment._id}><strong>{comment.user.username}:</strong> {comment.text}</li>
-                ))}
-            </ul>
-            <textarea
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Add a comment"
-            ></textarea>
-            <br />
-            <button onClick={handleAddComment}>Submit Comment</button>
-            <Box sx={{ height: '30vh' }}>
-                <MapView locations={[location]} displayLink={false} />
-            </Box>
-        </div>
+        <Container maxWidth="md">
+            <Card>
+                <CardHeader
+                    title={location.name}
+                    action={
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleFavoriteToggle}
+                            sx={{ borderRadius: '16px', display: 'flex', alignItems: 'center' }}
+                        >
+                            {isFavorite ? <Favorite color="dark" /> : <FavoriteBorder />}
+                            <Box sx={{ ml: 1 }}>{isFavorite ? "Add to Favorites" : "Remove from Favorities"}</Box>
+                        </Button>
+                    }
+                />
+                <CardContent>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} sm={6}>
+                            <Typography variant="body1">Latitude: {location.latitude}</Typography>
+                            <Typography variant="body1">Longitude: {location.longitude}</Typography>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <Box sx={{ height: '30vh' }}>
+                                <MapView locations={[location]} displayLink={false} />
+                            </Box>
+                        </Grid>
+                    </Grid>
+                    <Typography variant="h6" gutterBottom>
+                        Events
+                    </Typography>
+                    <List>
+                        {location.events.map(event => (
+                            <ListItem key={event._id}>
+                                <Box sx={{ backgroundColor: '#f0f0f0', padding: 2, borderRadius: 1, width: '100%' }}>
+                                    <ListItemText
+                                        primary={event.title}
+                                        secondary={event.dateTime}
+                                    />
+                                </Box>
+                            </ListItem>
+                        ))}
+                    </List>
+                    <Typography variant="h6" gutterBottom>
+                        Comments
+                    </Typography>
+                    <List>
+                        {comments.map(comment => (
+                            <ListItem key={comment._id}>
+                                <Box sx={{ backgroundColor: '#e0e0e0', padding: 2, borderRadius: 1, width: '100%' }}>
+                                    <ListItemText
+                                        primary={<strong>{comment.user.username}:</strong>}
+                                        secondary={comment.text}
+                                    />
+                                </Box>
+                            </ListItem>
+                        ))}
+                    </List>
+                    <TextField
+                        label="Add a comment"
+                        multiline
+                        fullWidth
+                        rows={4}
+                        value={newComment}
+                        onChange={(e) => setNewComment(e.target.value)}
+                        variant="outlined"
+                        margin="normal"
+                    />
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleAddComment}
+                        disabled={!newComment}
+                    >
+                        Submit Comment
+                    </Button>
+                </CardContent>
+            </Card>
+        </Container>
     );
 };
 
