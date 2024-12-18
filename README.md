@@ -63,7 +63,6 @@ We also use the **Google Maps API** in this project.
   GOOGLE_MAPS_API_KEY=YOUR_API_KEY
   RANDOM_SEED=ARBITRARY_RANDOM_SEED
     ```
-   - Note: The RANDOM_SEED is used for randomly selecting 10 locations from the location list.
 
 
 ### TA please start from here.
