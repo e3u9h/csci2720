@@ -10,20 +10,20 @@ University Guideline on Academic Honesty:
 
 https://www.cuhk.edu.hk/policy/academichonesty/
 
-Student Name : <DU Fangzhou>
-Student ID : <1155173892>
-Class/Section : <CSCI2720>
+Student Name : DU Fangzhou
+Student ID : 1155173892
+Class/Section : CSCI2720
 
-Student Name : <DING Yuzhou>
-Student ID : <1155173825>
-Class/Section : <CSCI2720>
+Student Name : DING Yuzhou
+Student ID : 1155173825
+Class/Section : CSCI2720
 
-Student Name : <WEI Youlin>
-Student ID : <1155157186>
-Class/Section : <CSCI2720>
+Student Name : WEI Youlin
+Student ID : 1155157186
+Class/Section : CSCI2720
 
 
-Date : <18 Dec>
+Date : 18 Dec
 
 - **Vite.js** for the frontend
 - **Express.js** for the backend
