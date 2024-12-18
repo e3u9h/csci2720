@@ -25,7 +25,7 @@ Class/Section : CSCI2720
 
 Date : 18 Dec
 
-- **Vite.js** for the frontend
+- **React.js** for the frontend
 - **Express.js** for the backend
 - **MongoDB** for the database
 
@@ -34,6 +34,8 @@ We also use the **Google Maps API** in this project.
 ---
 
 ## Setting Up the Project
+
+** For TA grading: Please skip the Prerequisites and Environment variables part, because we have already included the `.env` in our submitted ZIP file, which also contains the API key. The only prerequiisite for TAs is to have a local MongoDB.**
 
 ### Prerequisites
 
@@ -62,6 +64,8 @@ We also use the **Google Maps API** in this project.
   RANDOM_SEED=ARBITRARY_RANDOM_SEED
     ```
    - Note: The RANDOM_SEED is used for randomly selecting 10 locations from the location list.
+ 
+**TA please start from here.**
 ### Running the Frontend
 Navigate to the csci2720 directory:
 ```bash
@@ -87,7 +91,7 @@ npm install
 Initialize the Database (only required on the first run):
 Run the following command to save all events and locations from the XML files into the database and create an admin account:
 ```bash
-node utils/parseXML.js
+node utils/parseXML_store10.js
 ```
 Start the backend server:
 ```bash
