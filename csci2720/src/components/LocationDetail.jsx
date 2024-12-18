@@ -18,6 +18,7 @@ import {
     ListItemText,
     TextField,
     Typography,
+    useTheme,
 } from '@mui/material';
 import { Favorite, FavoriteBorder } from '@mui/icons-material';
 
@@ -28,6 +29,7 @@ const LocationDetail = () => {
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [isFavorite, setIsFavorite] = useState(false);
+    const theme = useTheme();
 
     useEffect(() => {
         const fetchLocation = async () => {
@@ -79,7 +81,7 @@ const LocationDetail = () => {
     if (!location) return <CircularProgress />;
 
     return (
-        <Container maxWidth="md">
+        <Container maxWidth="md" sx={{ marginTop: '1vh' }}>
             <Card>
                 <CardHeader
                     title={location.name}
@@ -91,7 +93,7 @@ const LocationDetail = () => {
                             sx={{ borderRadius: '16px', display: 'flex', alignItems: 'center' }}
                         >
                             {isFavorite ? <Favorite color="dark" /> : <FavoriteBorder />}
-                            <Box sx={{ ml: 1 }}>{isFavorite ? "Add to Favorites" : "Remove from Favorities"}</Box>
+                            <Box sx={{ ml: 1 }}>{isFavorite ? "Remove from Favorites" : "Add To Favorities"}</Box>
                         </Button>
                     }
                 />
@@ -113,7 +115,7 @@ const LocationDetail = () => {
                     <List>
                         {location.events.map(event => (
                             <ListItem key={event._id}>
-                                <Box sx={{ backgroundColor: '#f0f0f0', padding: 2, borderRadius: 1, width: '100%' }}>
+                                <Box sx={{ backgroundColor: theme.palette.mode === 'light' ? '#f0f0f0' : '#303030', padding: 2, borderRadius: 1, width: '100%' }}>
                                     <ListItemText
                                         primary={event.title}
                                         secondary={event.dateTime}
@@ -128,7 +130,7 @@ const LocationDetail = () => {
                     <List>
                         {comments.map(comment => (
                             <ListItem key={comment._id}>
-                                <Box sx={{ backgroundColor: '#e0e0e0', padding: 2, borderRadius: 1, width: '100%' }}>
+                                <Box sx={{ backgroundColor: theme.palette.mode === 'light' ? '#e0e0e0' : '#424242', padding: 2, borderRadius: 1, width: '100%' }}>
                                     <ListItemText
                                         primary={<strong>{comment.user.username}:</strong>}
                                         secondary={comment.text}
