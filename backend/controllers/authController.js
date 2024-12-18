@@ -20,15 +20,15 @@ const generateToken = (user, isAdmin) => {
 exports.register = async (req, res) => {
     const { username, password, role } = req.body;
     try {
-        if (role === 'admin') {
-            const admin = new Admin({ username, password });
-            await admin.save();
-            res.status(201).json({ message: 'Admin registered successfully' });
-        } else {
-            const user = new User({ username, password });
-            await user.save();
-            res.status(201).json({ message: 'User registered successfully' });
+        // Check if the username already exists
+        const existingUser = await User.findOne({ username });
+
+        if (existingUser) {
+            return res.status(400).json({ message: 'Username already exists' });
         }
+        const user = new User({ username, password });
+        await user.save();
+        res.status(201).json({ message: 'User registered successfully' });
     } catch (err) {
         res.status(400).json({ error: err.message });
     }

@@ -46,15 +46,15 @@ const Register = () => {
         }
 
         try {
-            const success = await register(username, password);
-            if (success) {
+            const response = await register(username, password);
+            if (response.status === 201) {
                 alert('Registration Successful! Please login.');
                 navigate('/login');
             } else {
-                setError('Registration failed. Please try again.');
+                setError(response.response.data.message);
             }
         } catch (err) {
-            setError('Registration failed. Please try again.');
+            setError(err.message);
         }
     };
 
