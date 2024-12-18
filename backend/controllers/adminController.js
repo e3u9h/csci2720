@@ -21,12 +21,9 @@ exports.createEvent = async (req, res) => {
         }
 };
 
-exports.getSomeEvents = async (req, res) => {
+exports.getAllEvents = async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
-        console.log(req.query);
-        const events = await Event.find().skip((page - 1) * limit).limit(limit);
+        const events = await Event.find();
         console.log(events);
         res.status(200).json(events);
     } catch (error) {

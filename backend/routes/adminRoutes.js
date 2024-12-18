@@ -21,7 +21,7 @@ router.delete('/admins/:id', isAdmin, adminController.deleteAdmin); // Ensure th
 
 // Add the route for creating events
 router.post('/events', isAdmin, adminController.createEvent);
-router.get('/events', isAdmin, adminController.getSomeEvents);
+router.get('/events', isAdmin, adminController.getAllEvents);
 router.put('/events/:id', isAdmin, adminController.updateEvent);
 router.delete('/events/:id', isAdmin, adminController.deleteEvent);
 

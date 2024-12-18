@@ -13,8 +13,11 @@ import {
     ListItemText,
     Snackbar,
     Alert,
-    Stack,
-    Pagination,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    Box,
 } from '@mui/material';
 import API from '../services/api';
 
@@ -141,16 +144,18 @@ const AdminDashboard = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [eventsPerPage] = useState(10);
+    const [venues, setVenues] = useState([]);
+    const [newnewEvent, setNewnewEvent] = useState({ title: '', description: '', dateTime: '', presenter: '', venue: '' });
 
     useEffect(() => {
         fetchEvents(currentPage, eventsPerPage);
+        fetchVenues();
+
     }, [currentPage, eventsPerPage]);
 
     const fetchEvents = async (page, limit) => {
         try {
-            const response = await API.get('/api/events', {
-                params: { page, limit },
-            });
+            const response = await API.get('/api/events');
             console.log(response.data);
             setEvents(response.data);
             setTotalPages(response.data.totalPages);
@@ -160,11 +165,24 @@ const AdminDashboard = () => {
         }
     };
 
+    const fetchVenues = async () => {
+        try {
+            const response = await API.get('/locations');
+            setVenues(response.data);
+        } catch (error) {
+            setFeedback({ message: 'Error fetching venues', type: 'error' });
+            setSnackbarOpen(true);
+        }
+    };
+
     const handleCreateEvent = async () => {
         try {
             await API.post('/api/events', {
-                title: newEvent.title,
-                description: newEvent.description,
+                title: newnewEvent.title,
+                description: newnewEvent.description,
+                dateTime: newnewEvent.dateTime,
+                presenter: newnewEvent.presenter,
+                venue: newnewEvent.venue,
             });
             setFeedback({ message: 'Event created successfully!', type: 'success' });
             setSnackbarOpen(true);
@@ -179,7 +197,7 @@ const AdminDashboard = () => {
 
     const handleSelectEvent = (event) => {
         setSelectedEvent(event);
-        setNewEvent({ title: event.title, description: event.description });
+        setNewEvent({ title: event.title, description: event.description, dateTime: event.dateTime, presenter: event.presenter, venue: event.venue._id, _id: event._id });
     };
 
     const handleModifyEvent = async () => {
@@ -187,6 +205,9 @@ const AdminDashboard = () => {
             await API.put(`/api/events/${selectedEvent._id}`, {
                 title: newEvent.title,
                 description: newEvent.description,
+                dateTime: newEvent.dateTime,
+                presenter: newEvent.presenter,
+                venue: newEvent.venue,
             });
             setFeedback({ message: 'Event updated successfully!', type: 'success' });
             setSnackbarOpen(true);
@@ -382,18 +403,59 @@ const AdminDashboard = () => {
                             label="Title"
                             variant="outlined"
                             fullWidth
-                            value={newEvent.title}
-                            onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
+                            value={newnewEvent.title}
+                            onChange={(e) => setNewnewEvent({ ...newnewEvent, title: e.target.value })}
                         />
                     </Grid>
                     <Grid item xs={12} sm={6}>
                         <TextField
+                            label="Date & Time"
+                            type="datetime-local"
+                            variant="outlined"
+                            fullWidth
+                            value={newnewEvent.dateTime}
+                            onChange={(e) => setNewnewEvent({ ...newnewEvent, dateTime: e.target.value })}
+                            InputLabelProps={{
+                                shrink: true,
+                            }}
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
                             label="Description"
                             variant="outlined"
                             fullWidth
-                            value={newEvent.description}
-                            onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
+                            multiline
+                            rows={3}
+                            value={newnewEvent.description}
+                            onChange={(e) => setNewnewEvent({ ...newnewEvent, description: e.target.value })}
                         />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                        <TextField
+                            label="Presenter"
+                            variant="outlined"
+                            fullWidth
+                            value={newnewEvent.presenter}
+                            onChange={(e) => setNewnewEvent({ ...newnewEvent, presenter: e.target.value })}
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                        <FormControl variant="outlined" fullWidth>
+                            <InputLabel>Venue</InputLabel>
+                            <Select
+                                value={newnewEvent.venue}
+                                label="Venue"
+                                onChange={(e) => setNewnewEvent({ ...newnewEvent, venue: e.target.value })}
+                            >
+                                {venues.map((venue) => (
+                                    <MenuItem key={venue._id} value={venue._id}>
+                                        {venue.name}
+                                    </MenuItem>
+                                ))}
+
+                            </Select>
+                        </FormControl>
                     </Grid>
                     <Grid item xs={12}>
                         <Button variant="contained" color="primary" onClick={handleCreateEvent} fullWidth>
@@ -405,6 +467,7 @@ const AdminDashboard = () => {
                 <Typography variant="h6" gutterBottom style={{ marginTop: '2rem' }}>
                     Event List
                 </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'center', margin: '1rem', overflowY: 'auto', height: '40vh' }}>
                 <List>
                     {events.map((event) => {
                         const isSelected = selectedEvent?._id === event._id;
@@ -416,28 +479,79 @@ const AdminDashboard = () => {
                                 selected={isSelected}
                                 style={getListItemStyles(isSelected)}
                             >
-                                <ListItemText primary={`${event.title}`} secondary={event.description} />
+                                <ListItemText primary={`${event.title}`} secondary={event.dateTime} primaryTypographyProps={{
+                                    style: { fontWeight: isSelected ? 'bold' : 'normal' }
+                                }} />
                             </ListItem>
                         );
                     })}
                 </List>
-                <Stack spacing={2} alignItems="center" style={{ marginTop: '1rem' }}>
-                    <Pagination
-                        count={totalPages}
-                        page={currentPage}
-                        onChange={handleChangePage}
-                        color="primary"
-                    />
-                </Stack>
+                </Box>
+
                 {selectedEvent && (
-                    <Grid container spacing={2} style={{ marginTop: '1rem' }}>
+                    <Grid container spacing={2}>
                         <Grid item xs={12} sm={6}>
+                            <TextField
+                                label="Title"
+                                variant="outlined"
+                                fullWidth
+                                value={newEvent.title}
+                                onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                label="Date & Time"
+                                variant="outlined"
+                                fullWidth
+                                value={newEvent.dateTime}
+                                onChange={(e) => setNewEvent({ ...newEvent, dateTime: e.target.value })}
+                                InputLabelProps={{
+                                    shrink: true,
+                                }}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                label="Description"
+                                variant="outlined"
+                                fullWidth
+                                multiline
+                                rows={3}
+                                value={newEvent.description}
+                                onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                label="Presenter"
+                                variant="outlined"
+                                fullWidth
+                                value={newEvent.presenter}
+                                onChange={(e) => setNewEvent({ ...newEvent, presenter: e.target.value })}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <FormControl variant="outlined" fullWidth>
+                                <InputLabel>Venue</InputLabel>
+                                <Select
+                                    value={newEvent.venue}
+                                    label="Venue"
+                                    onChange={(e) => setNewEvent({ ...newEvent, venue: e.target.value })}
+                                >
+                                    {venues.map((venue) => (
+                                        <MenuItem key={venue._id} value={venue._id}>
+                                            {venue.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={12}>
                             <Button variant="contained" color="primary" onClick={handleModifyEvent} fullWidth>
                                 Update Event
                             </Button>
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <Button variant="outlined" color="secondary" onClick={handleDeleteEvent} fullWidth>
+                            <Button variant="contained" color="primary" onClick={handleDeleteEvent} fullWidth>
                                 Delete Event
                             </Button>
                         </Grid>

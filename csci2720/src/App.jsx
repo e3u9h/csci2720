@@ -39,7 +39,7 @@ const App = () => {
   useEffect(() => {
     const getLocations = async () => {
       if (!auth.token) return;
-      const { data } = await API.get('/locations/tenrandom');
+      const { data } = await API.get('/locations');
       setLocations(data);
     };
     getLocations();

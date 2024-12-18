@@ -14,26 +14,54 @@ import {
     TableRow, 
     Paper,
     Alert,
-    CircularProgress 
+    CircularProgress,
+    Button
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 import API from '../services/api';
+import { ArrowUpward, ArrowDownward } from '@mui/icons-material';
 
-const LocationsListWithFilter = () => {
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // Earth's radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+};
+
+const LocationsListWithFilter = ({ locations }) => {
+    const [locationsDist, setLocationsDist] = useState(locations.map((location) => ({
+        ...location,
+        distance: null
+    })));
   const [distance, setDistance] = useState(50);
-  const [category, setCategory] = useState('all');
-  const [locations, setLocations] = useState([]);
-  const [userLocation, setUserLocation] = useState(null);
-  const [locationLoading, setLocationLoading] = useState(true);
+    const [category, setCategory] = useState('all');
+    const [userLocation, setUserLocation] = useState(null);
   const [dataLoading, setDataLoading] = useState(true);
   const [error, setError] = useState(null);
+    const [sortAsc, setSortAsc] = useState(true);
+    const [filteredLocations, setFilteredLocations] = useState(locations);
+    const sortedLocations = [...locationsDist].sort((a, b) => {
+        if (sortAsc) return a.events.length - b.events.length;
+        return b.events.length - a.events.length;
+    });
+
+    const toggleSort = () => setSortAsc(!sortAsc);
 
   const categories = [
-    { value: 'inc4', label: 'Sports & Recreation' },
-    { value: 'inc7', label: 'Library Activities' }
+      { value: 'Library', label: 'Library' },
+      { value: 'Lecture Room', label: 'Lecture Room' },
+      { value: 'Function Room', label: 'Function Room' },
+      { value: 'Auditorium', label: 'Auditorium' },
+      { value: 'Others', label: 'Others' }
   ];
 
   useEffect(() => {
+      setDataLoading(true);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -41,54 +69,49 @@ const LocationsListWithFilter = () => {
             lat: position.coords.latitude,
             lng: position.coords.longitude
           });
-          setLocationLoading(false);
+              const locationsWithdistance = locations.map((location) => ({
+                  ...location,
+                  distance: calculateDistance(
+                      position.coords.latitude,
+                      position.coords.longitude,
+                      location.latitude,
+                      location.longitude
+                  )
+              }));
+              console.log(locationsWithdistance);
+              setLocationsDist(locationsWithdistance);
         },
         (error) => {
-          console.warn("Location error:", error);
-          setLocationLoading(false);
+            console.warn("Location error:", error);
         }
       );
     }
-  }, []);
+      setDataLoading(false);
+  }, [locations]);
 
-  useEffect(() => {
-    const fetchLocations = async () => {
-      try {
-        setDataLoading(true);
-        const params = new URLSearchParams({
-          category,
-          distance: distance.toString()
-        });
 
+
+    useEffect(() => {
         if (userLocation) {
-          params.append('latitude', userLocation.lat.toString());
-          params.append('longitude', userLocation.lng.toString());
+            const filtered = sortedLocations.filter((location) => {
+                if (category !== 'all' && location.categories.indexOf(category) === -1) {
+                    return false;
+                }
+                return location.distance <= distance;
+            });
+            setFilteredLocations(filtered);
         }
+    }, [distance, category, sortedLocations]);
 
-        const response = await API.get(`/locations/filter?${params}`);
-        setLocations(response.data.locations);
-        setError(null);
-      } catch (err) {
-        setError(err.message);
-        setLocations([]);  // 确保在错误时清空位置列表
-      } finally {
-        setDataLoading(false);
-      }
-    };
-
-    const timeoutId = setTimeout(fetchLocations, 300);
-    return () => clearTimeout(timeoutId);
-  }, [distance, category, userLocation]);
 
   return (
     <Box sx={{ 
-      height: 'calc(100vh - 64px)',  // 减去顶部导航栏的高度
+          height: 'calc(100vh - 64px)',
       display: 'flex', 
       flexDirection: 'column',
-      overflow: 'hidden',  // 防止整体滚动
+          overflow: 'hidden',
       bgcolor: '#f5f5f5'
-    }}>
-      {/* 标题和过滤器区域 - 固定高度 */}
+      }}>
       <Box sx={{ 
         p: 3,
         backgroundColor: 'white',
@@ -101,6 +124,16 @@ const LocationsListWithFilter = () => {
           alignItems: 'center'
         }}>
           <Typography variant="h4" sx={{ fontWeight: 500 }}>Location List</Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
+                      <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={toggleSort}
+                          startIcon={sortAsc ? <ArrowUpward /> : <ArrowDownward />}
+                      >
+                          Sort by Number of Events ({sortAsc ? 'Ascending' : 'Descending'})
+                      </Button>
+                  </Box>
           
           <Box sx={{ 
             display: 'flex', 
@@ -112,16 +145,7 @@ const LocationsListWithFilter = () => {
             boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
             width: 'auto',
             position: 'relative'
-          }}>
-            {locationLoading && (
-              <CircularProgress 
-                size={20} 
-                sx={{ 
-                  position: 'absolute',
-                  left: -30
-                }} 
-              />
-            )}
+                  }}>
             
             <Typography sx={{ minWidth: 'auto', whiteSpace: 'nowrap' }}>
               Distance: {distance}km
@@ -192,7 +216,7 @@ const LocationsListWithFilter = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {!dataLoading && locations.map(location => (
+                          {!dataLoading && filteredLocations.map(location => (
                 <TableRow key={location._id} hover>
                   <TableCell>
                     <Link 
@@ -210,7 +234,7 @@ const LocationsListWithFilter = () => {
                     </Link>
                   </TableCell>
                   <TableCell>
-                    {location.distance != null ? `${location.distance} km` : 'N/A'}
+                                      {location.distance != null ? `${location.distance.toFixed(2)} km` : 'N/A'}
                   </TableCell>
                   <TableCell>{location.events?.length || 0}</TableCell>
                 </TableRow>

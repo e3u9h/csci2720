@@ -6,7 +6,7 @@ const getTheme = (mode) =>
         palette: {
             mode,
             primary: {
-                main: '#1976d2',
+                main: '#94A3B8 ',
             },
             secondary: {
                 main: '#dc004e',

@@ -67,6 +67,7 @@ const getGeocode = async (venueName) => {
  */
 const parseVenues = async () => {
     try {
+        const catList = ["Library", "Lecture Room", "Auditorium", "Function Room", "Studio", "Others"];
         const xmlData = fs.readFileSync(VENUES_XML_PATH, 'utf-8');
         const parser = new xml2js.Parser();
         const result = await parser.parseStringPromise(xmlData);
@@ -94,6 +95,7 @@ const parseVenues = async () => {
                         address: geocode.address,
                         latitude,
                         longitude,
+                        category: [],
                     };
                     console.log(`Geocode fetched for "${nameE}": (${latitude}, ${longitude})`);
                 } else {
@@ -106,8 +108,18 @@ const parseVenues = async () => {
                     address: '', // Address not provided in venues.xml
                     latitude,
                     longitude,
+                    category: [],
                 };
             }
+            for (cat of catList) {
+                if (nameE.includes(cat)) {
+                    venueMap[venueId].category.push(cat);
+                }
+            }
+            if (venueMap[venueId].category.length === 0) {
+                venueMap[venueId].category.push("Others");
+            }
+
         }
 
         console.log(`Total Eligible Venues with Coordinates: ${Object.keys(venueMap).length}`);
@@ -146,9 +158,14 @@ const parseEvents = async (venueMap) => {
             venueEventMap[venueId].push(event);
         }
         let count = 0;
+        let skipcount = 0;
 
         // Iterate through venueEventMap and insert data
         for (const [venueId, eventsList] of Object.entries(venueEventMap)) {
+            skipcount++;
+            if (skipcount < 11) {
+                continue;
+            }
             if (count >= 10) {
                 break;
             }
@@ -162,6 +179,11 @@ const parseEvents = async (venueMap) => {
             }
 
             const venueDetails = venueMap[venueId];
+            if (!Array.isArray(venueDetails.category)) {
+                console.warn(`Venue ID "${venueId}" has invalid category. Skipping.`);
+            }
+            console.log(venueDetails.category.length);
+            console.log(venueDetails.category[0]);
 
             // Check if location already exists in DB
             let location = await Location.findOne({ venueId });
@@ -173,7 +195,9 @@ const parseEvents = async (venueMap) => {
                     address: venueDetails.address,
                     latitude: venueDetails.latitude,
                     longitude: venueDetails.longitude,
+                    categories: venueDetails.category,
                 });
+                console.log(`venueDetails.category: ${venueDetails.category}, location.categories: ${location.categories}`);
                 await location.save();
                 console.log(`Location Saved: ${venueDetails.name} (ID: ${venueId})`);
             }
@@ -183,8 +207,8 @@ const parseEvents = async (venueMap) => {
                 const title = event.titlee ? event.titlee[0].trim() : 'No Title';
                 const dateTimeStr = event.predateE ? event.predateE[0].trim() : '';
                 const description = (event.desce && event.desce[0].trim() !== "") ? event.desce[0].trim() : 'No Description';
-                const presenter = (event.presenterorgc && event.presenterorgc[0].trim() !== '')
-                    ? event.presenterorgc[0].trim()
+                const presenter = (event.presenterorge && event.presenterorge[0].trim() !== '')
+                    ? event.presenterorge[0].trim()
                     : 'No Presenter';
 
                 // Directly assign the date string without parsing
@@ -218,6 +242,7 @@ const parseEvents = async (venueMap) => {
             // Save updated Location with events
             await location.save();
             count++;
+            skipcount = 0;
             console.log(`Location Updated with Events: ${venueDetails.name} (ID: ${venueId})`);
         }
 

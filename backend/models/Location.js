@@ -7,6 +7,7 @@ const locationSchema = new mongoose.Schema({
     latitude: { type: Number, default: null },
     longitude: { type: Number, default: null },
     events: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Event' }],
+    categories: { type: [String], required: true },
 });
 
 module.exports = mongoose.model('Location', locationSchema);

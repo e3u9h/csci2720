@@ -175,8 +175,8 @@ const parseEvents = async (venueMap) => {
                 const title = event.titlee ? event.titlee[0].trim() : 'No Title';
                 const dateTimeStr = event.predateE ? event.predateE[0].trim() : '';
                 const description = (event.desce && event.desce[0].trim() !== "") ? event.desce[0].trim() : 'No Description';
-                const presenter = (event.presenterorgc && event.presenterorgc[0].trim() !== '')
-                    ? event.presenterorgc[0].trim()
+                const presenter = (event.presenterorge && event.presenterorge[0].trim() !== '')
+                    ? event.presenterorge[0].trim()
                     : 'No Presenter';
 
                 // Directly assign the date string without parsing
