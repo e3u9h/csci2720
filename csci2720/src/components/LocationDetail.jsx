@@ -139,7 +139,7 @@ const LocationDetail = () => {
                             </ListItem>
                         ))}
                     </List>
-                    <TextField
+                    {!auth.isAdmin && (<><TextField
                         label="Add a comment"
                         multiline
                         fullWidth
@@ -156,7 +156,7 @@ const LocationDetail = () => {
                         disabled={!newComment}
                     >
                         Submit Comment
-                    </Button>
+                        </Button></>)}
                 </CardContent>
             </Card>
         </Container>
