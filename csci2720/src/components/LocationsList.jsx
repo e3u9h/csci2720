@@ -112,11 +112,10 @@ const LocationsListWithFilter = ({ locations }) => {
       display: 'flex', 
       flexDirection: 'column',
           overflow: 'hidden',
-      bgcolor: '#f5f5f5'
+
       }}>
       <Box sx={{ 
-        p: 3,
-        backgroundColor: 'white',
+              p: 3,
         borderBottom: 1,
         borderColor: 'divider'
       }}>
