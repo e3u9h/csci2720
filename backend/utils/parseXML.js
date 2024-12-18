@@ -74,6 +74,7 @@ const getGeocode = async (venueName) => {
  */
 const parseVenues = async () => {
     try {
+        const catList = ["Library", "Lecture Room", "Auditorium", "Function Room", "Studio", "Others"];
         const xmlData = fs.readFileSync(VENUES_XML_PATH, 'utf-8');
         const parser = new xml2js.Parser();
         const result = await parser.parseStringPromise(xmlData);
@@ -101,6 +102,7 @@ const parseVenues = async () => {
                         address: geocode.address,
                         latitude,
                         longitude,
+                        category: [],
                     };
                     console.log(`Geocode fetched for "${nameE}": (${latitude}, ${longitude})`);
                 } else {
@@ -113,7 +115,16 @@ const parseVenues = async () => {
                     address: '', // Address not provided in venues.xml
                     latitude,
                     longitude,
+                    category: [],
                 };
+            }
+            for (cat of catList) {
+                if (nameE.includes(cat)) {
+                    venueMap[venueId].category.push(cat);
+                }
+            }
+            if (venueMap[venueId].category.length === 0) {
+                venueMap[venueId].category.push("Others");
             }
         }
 
@@ -172,6 +183,7 @@ const parseEvents = async (venueMap) => {
                     address: venueDetails.address,
                     latitude: venueDetails.latitude,
                     longitude: venueDetails.longitude,
+                    categories: venueDetails.category,
                 });
                 await location.save();
                 console.log(`Location Saved: ${venueDetails.name} (ID: ${venueId})`);
