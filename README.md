@@ -66,10 +66,6 @@ Run the following command to save all events and locations from the XML files in
 ```bash
 node utils/parseXML.js
 ```
-Or you could run only 10 locations with:
-```bash
-node util/parseXML_store10.js
-```
 Start the backend server:
 ```bash
 npm start
