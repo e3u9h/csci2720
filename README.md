@@ -66,7 +66,7 @@ We also use the **Google Maps API** in this project.
    - Note: The RANDOM_SEED is used for randomly selecting 10 locations from the location list.
 
 
-**TA please start from here.**
+### TA please start from here.
 ### Running the Frontend
 Navigate to the csci2720 directory:
 ```bash
