@@ -1,34 +1,31 @@
 # CSCI2720 Course Project
 
-<!-- We declare that the lab work here submitted is original
-except for source material explicitly acknowledged,
-and that the same or closely related material has not been
-previously submitted for another course.
-We also acknowledge that we am aware of University policy and
-regulations on honesty in academic work, and of the disciplinary
-guidelines and procedures applicable to breaches of such
-policy and regulations, as contained in the website.
+This is the course project of **CSCI2720**. We use the following technologies:
+
+We declare that the lab work here submitted is original except for source material explicitly acknowledged,
+and that the same or closely related material has not been previously submitted for another course.
+We also acknowledge that we am aware of University policy and regulations on honesty in academic work, and of the disciplinary
+guidelines and procedures applicable to breaches of such policy and regulations, as contained in the website.
 University Guideline on Academic Honesty:
 
 https://www.cuhk.edu.hk/policy/academichonesty/
 
-Student Name : <DU Fangzhou>
-Student ID : <1155173892>
-Class/Section : <CSCI2720>
+Student Name : DU Fangzhou
+Student ID : 1155173892
+Class/Section : CSCI2720
 
-Student Name : <DING Yuzhou>
-Student ID : <1155173825>
-Class/Section : <CSCI2720>
+Student Name : DING Yuzhou
+Student ID : 1155173825
+Class/Section : CSCI2720
 
-Student Name : <WEI Youlin>
-Student ID : <1155157186>
-Class/Section : <CSCI2720>
+Student Name : WEI Youlin
+Student ID : 1155157186
+Class/Section : CSCI2720
 
-Date : <18 Dec> -->
 
-This is the course project of **CSCI2720**. We use the following technologies:
+Date : 18 Dec
 
-- **Vite.js** for the frontend
+- **React.js** for the frontend
 - **Express.js** for the backend
 - **MongoDB** for the database
 
@@ -37,6 +34,8 @@ We also use the **Google Maps API** in this project.
 ---
 
 ## Setting Up the Project
+
+**For TA grading: Please skip the Prerequisites and Environment variables parts, because we have already included the `.env` files in our submitted ZIP file, which also contains the API key. The only prerequiisite for TAs is to have a local MongoDB.**
 
 ### Prerequisites
 
@@ -65,6 +64,9 @@ We also use the **Google Maps API** in this project.
   RANDOM_SEED=ARBITRARY_RANDOM_SEED
     ```
    - Note: The RANDOM_SEED is used for randomly selecting 10 locations from the location list.
+
+
+### TA please start from here.
 ### Running the Frontend
 Navigate to the csci2720 directory:
 ```bash
@@ -90,7 +92,7 @@ npm install
 Initialize the Database (only required on the first run):
 Run the following command to save all events and locations from the XML files into the database and create an admin account:
 ```bash
-node utils/parseXML.js
+node utils/parseXML_store10.js
 ```
 Start the backend server:
 ```bash
