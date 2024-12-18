@@ -47,7 +47,7 @@ const LocationDetail = () => {
         };
         fetchLocation();
         fetchComments();
-        if (auth) {
+        if (!auth.isAdmin) {
             checkFavorite();
         }
     }, [id, auth]);
@@ -86,7 +86,7 @@ const LocationDetail = () => {
                 <CardHeader
                     title={location.name}
                     action={
-                        <Button
+                        !auth.isAdmin && (< Button
                             variant="contained"
                             color="primary"
                             onClick={handleFavoriteToggle}
@@ -94,7 +94,7 @@ const LocationDetail = () => {
                         >
                             {isFavorite ? <Favorite color="dark" /> : <FavoriteBorder />}
                             <Box sx={{ ml: 1 }}>{isFavorite ? "Remove from Favorites" : "Add To Favorities"}</Box>
-                        </Button>
+                        </Button>)
                     }
                 />
                 <CardContent>
