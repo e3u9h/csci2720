@@ -1,11 +1,13 @@
 # CSCI2720 Course Project
 
-This is the course project of **CSCI2720**. We use the following technologies:
-
-We declare that the lab work here submitted is original except for source material explicitly acknowledged,
-and that the same or closely related material has not been previously submitted for another course.
-We also acknowledge that we am aware of University policy and regulations on honesty in academic work, and of the disciplinary
-guidelines and procedures applicable to breaches of such policy and regulations, as contained in the website.
+<!-- We declare that the lab work here submitted is original
+except for source material explicitly acknowledged,
+and that the same or closely related material has not been
+previously submitted for another course.
+We also acknowledge that we am aware of University policy and
+regulations on honesty in academic work, and of the disciplinary
+guidelines and procedures applicable to breaches of such
+policy and regulations, as contained in the website.
 University Guideline on Academic Honesty:
 
 https://www.cuhk.edu.hk/policy/academichonesty/
@@ -22,8 +24,9 @@ Student Name : <WEI Youlin>
 Student ID : <1155157186>
 Class/Section : <CSCI2720>
 
+Date : <18 Dec> -->
 
-Date : <18 Dec>
+This is the course project of **CSCI2720**. We use the following technologies:
 
 - **Vite.js** for the frontend
 - **Express.js** for the backend

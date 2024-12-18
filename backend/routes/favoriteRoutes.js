@@ -1,3 +1,10 @@
+/*
+
+DU Fangzhou 1155173892
+DING Yuzhou 1155173825
+WEI YOUlin  1155157186
+
+*/
 const express = require('express');
 const router = express.Router();
 const { addToFavorites, removeFromFavorites, getFavorites } = require('../controllers/favoriteController');

@@ -1,3 +1,10 @@
+/*
+
+DU Fangzhou 1155173892
+DING Yuzhou 1155173825
+WEI YOUlin  1155157186
+
+*/
 import js from '@eslint/js'
 import globals from 'globals'
 import react from 'eslint-plugin-react'
