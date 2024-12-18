@@ -45,10 +45,7 @@ const LocationsListWithFilter = ({ locations }) => {
   const [error, setError] = useState(null);
     const [sortAsc, setSortAsc] = useState(true);
     const [filteredLocations, setFilteredLocations] = useState(locations);
-    const sortedLocations = [...locationsDist].sort((a, b) => {
-        if (sortAsc) return a.events.length - b.events.length;
-        return b.events.length - a.events.length;
-    });
+
 
     const toggleSort = () => setSortAsc(!sortAsc);
 
@@ -59,6 +56,7 @@ const LocationsListWithFilter = ({ locations }) => {
       { value: 'Auditorium', label: 'Auditorium' },
       { value: 'Others', label: 'Others' }
   ];
+    console.log("hello2")
 
   useEffect(() => {
       setDataLoading(true);
@@ -93,6 +91,10 @@ const LocationsListWithFilter = ({ locations }) => {
 
     useEffect(() => {
         if (userLocation) {
+            const sortedLocations = [...locationsDist].sort((a, b) => {
+                if (sortAsc) return a.events.length - b.events.length;
+                return b.events.length - a.events.length;
+            });
             const filtered = sortedLocations.filter((location) => {
                 if (category !== 'all' && location.categories.indexOf(category) === -1) {
                     return false;
@@ -101,7 +103,7 @@ const LocationsListWithFilter = ({ locations }) => {
             });
             setFilteredLocations(filtered);
         }
-    }, [distance, category, sortedLocations]);
+    }, [distance, category, sortAsc, locationsDist, userLocation]);
 
 
   return (
@@ -176,7 +178,6 @@ const LocationsListWithFilter = ({ locations }) => {
         </Box>
       </Box>
 
-      {/* 表格区域 - 剩余高度 */}
       <Box sx={{ 
         flex: 1,
         p: 3,

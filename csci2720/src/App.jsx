@@ -9,7 +9,7 @@ import LocationDetail from './components/LocationDetail';
 import AdminDashboard from './components/AdminDashboard';
 import Favorites from './components/Favorites';
 import NavBar from './components/NavBar'; // Optional: Navigation bar
-import MapView from './components/MapView'; // Import MapView component
+import MapPage from './components/MapPage';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import getTheme from './theme'; // Path to your custom theme
@@ -90,7 +90,7 @@ const App = () => {
                 path="/map"
                 element={
                   <PrivateRoute>
-                    <MapView locations={locations} displayLink={true} />
+                    <MapPage locations={locations} />
                   </PrivateRoute>
                 }
               />
