@@ -35,7 +35,7 @@ We also use the **Google Maps API** in this project.
 
 ## Setting Up the Project
 
-**For TA grading: Please skip the Prerequisites and Environment variables part, because we have already included the `.env` in our submitted ZIP file, which also contains the API key. The only prerequiisite for TAs is to have a local MongoDB.**
+**For TA grading: Please skip the Prerequisites and Environment variables parts, because we have already included the `.env` files in our submitted ZIP file, which also contains the API key. The only prerequiisite for TAs is to have a local MongoDB.**
 
 ### Prerequisites
 
